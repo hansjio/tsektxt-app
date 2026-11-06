@@ -20,7 +20,7 @@ function ResearchDemoBanner() {
     <div className="flex items-start gap-2 rounded-xl border border-caution/30 bg-caution/8 px-4 py-2.5 text-sm text-ink">
       <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-caution" aria-hidden="true" />
       <span className="text-muted">
-        <strong className="text-ink">Research demo, not a fact-checker.</strong> Three real models run on this computer. Labels follow the source, models are single-seed, and they are not ranked.
+        <strong className="text-ink">Research demo, not a fact-checker.</strong> Three real models run on this computer. Labels follow the source, models are single-seed, and they are not ranked. They were trained on long news articles, so short social posts are outside what they know: confidence can be high and still wrong, and a link in the text can change the result.
       </span>
     </div>
   );
@@ -52,6 +52,12 @@ export function CheckerWorkspace({ initialText = "" }: { initialText?: string })
 
   async function runAnalysis() {
     setError("");
+    if (!text.trim()) {
+      const message = "Paste a post first (or click Load sample).";
+      setError(message);
+      setToasts([{ id: "analysis-empty", title: "Nothing to check", description: message, status: "error", duration: 4200 }]);
+      return;
+    }
     setLoading(true);
     setToasts([{ id: "analysis-loading", title: "Running 3 models", description: "Predictions plus Integrated Gradients. This can take a moment on a CPU.", status: "loading", duration: 0 }]);
     try {
@@ -72,6 +78,7 @@ export function CheckerWorkspace({ initialText = "" }: { initialText?: string })
     setText(brand.samples[sampleIndex % brand.samples.length]);
     setResult(null);
     setError("");
+    setToasts([{ id: "sample-loaded", title: "Sample loaded", description: "An invented example for testing, not a real post.", status: "success", duration: 3500 }]);
     setResultsOpen(true);
     setSampleIndex((i) => i + 1);
   }

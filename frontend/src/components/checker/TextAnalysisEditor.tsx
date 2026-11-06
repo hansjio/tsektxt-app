@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/beui/tabs";
 import { countWords } from "@/lib/utils";
 import { InlineHighlightedText } from "@/components/results/InlineHighlightedText";
 import type { AnalysisResult } from "@/types/analysis";
+import { SHORT_POST_WORDS } from "@/lib/reliability";
 
 export function TextAnalysisEditor({
   value,
@@ -31,7 +32,8 @@ export function TextAnalysisEditor({
   const [actionsOpen, setActionsOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const words = useMemo(() => countWords(value), [value]);
-  const tooShort = value.trim().length > 0 && value.trim().length < 50;
+  // About 90% of the training articles had 100+ words (THESIS_INPUTS section 2), so shorter posts are outside what the models saw.
+  const tooShort = words > 0 && words < SHORT_POST_WORDS;
 
   const uploadAccept = ".txt";
   const uploadDescription = "Attach a plain-text (.txt) file with one post.";
@@ -162,7 +164,7 @@ export function TextAnalysisEditor({
           </div>
       <div id="editor-count" className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
         <span>{words} words - {value.length} characters</span>
-        <span id="editor-help">{tooShort ? "Short posts give the models little to go on." : "Models read the first 128 tokens."}</span>
+        <span id="editor-help">{tooShort ? "Under 100 words: shorter than most training articles, so verdicts are less reliable." : "Models read the first 128 tokens."}</span>
       </div>
       <div className="mt-4 flex justify-center sm:mt-5">
         <Button onClick={onAnalyze} disabled={loading || value.trim().length === 0} className="w-full sm:w-auto sm:min-w-56">

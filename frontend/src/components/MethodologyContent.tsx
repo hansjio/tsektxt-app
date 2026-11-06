@@ -62,6 +62,7 @@ export function MethodologyContent({ compact = false }: { compact?: boolean }) {
         <h2 className="text-xl font-semibold">Limits</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
           <li>Single training seed per model; verdicts and highlights can change with another seed.</li>
+          <li>Trained on long news articles (about 90% had 100 words or more). Short social posts are outside that range, so verdicts on them are less reliable and confidence can be high and still wrong.</li>
           <li>Labels come from the sources, so the models learn source style as well as content.</li>
           <li>No external AI service is used; there is no generated explanation text.</li>
         </ul>

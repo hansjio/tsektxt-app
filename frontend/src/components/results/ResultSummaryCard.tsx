@@ -2,6 +2,7 @@ import { AlertTriangle, SearchCheck, ShieldQuestion } from "lucide-react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { getPresentation, type ResultPresentation } from "@/lib/presentation";
+import { countPostWords, SHORT_POST_WORDS } from "@/lib/reliability";
 import { formatDate } from "@/lib/utils";
 import type { AnalysisResult } from "@/types/analysis";
 
@@ -32,6 +33,9 @@ const illustrationMap: Record<ResultPresentation["level"], string> = {
 export function ResultSummaryCard({ result, variant = "default" }: { result: AnalysisResult; variant?: "default" | "plain" }) {
   const p = getPresentation(result);
   const Icon = iconMap[p.tone];
+  const words = countPostWords(result.sourceText);
+  const low = words > 0 && words < SHORT_POST_WORDS;
+  const agree = result.notCredibleVotes === 0 || result.notCredibleVotes === result.models.length;
 
   return (
     <Card className="overflow-hidden bg-white p-0 shadow-none backdrop-blur-0">
@@ -49,6 +53,17 @@ export function ResultSummaryCard({ result, variant = "default" }: { result: Ana
         </div>
       </div>
       <div className="p-5">
+        {low ? (
+          <div role="note" className="mb-5 rounded-xl border border-caution/30 bg-caution/10 p-4 text-sm leading-relaxed">
+            <p className="font-semibold text-ink">Low reliability: this post has {words} words</p>
+            <p className="mt-1 text-muted">
+              The models were trained on news articles that were mostly {SHORT_POST_WORDS}+ words long. On short posts they often lean
+              &quot;not credible&quot; even when a post is accurate, and a high percentage does not mean they are sure. Treat the verdicts below
+              as weak signals. To check the claim, look it up on a fact-checking site; if this post links to a longer article, checking that
+              full text gives the models more to work with.
+            </p>
+          </div>
+        ) : null}
         <div className="flex items-start gap-3">
           <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${toneClass[p.tone]}`}>
             <Icon className="h-5 w-5" aria-hidden="true" />
@@ -58,7 +73,7 @@ export function ResultSummaryCard({ result, variant = "default" }: { result: Ana
             <p className="mt-1.5 text-sm leading-relaxed text-muted">{p.interpretation}</p>
           </div>
         </div>
-        <ul className="mt-5 space-y-3" aria-label="Verdict per model">
+        <ul className={`mt-5 space-y-3 ${low ? "opacity-60" : ""}`} aria-label={low ? "Verdict per model (low reliability)" : "Verdict per model"}>
           {result.models.map((m) => (
             <li key={m.key}>
               <div className="mb-1 flex items-center justify-between gap-2 text-sm">
@@ -78,6 +93,14 @@ export function ResultSummaryCard({ result, variant = "default" }: { result: Ana
           <div className="flex justify-between gap-3">
             <dt className="text-muted">Models saying not credible</dt>
             <dd className="font-semibold">{result.notCredibleVotes} of 3</dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted">Agreement</dt>
+            <dd className="font-semibold">{agree ? "All three agree" : "Models disagree (weak signal)"}</dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted">Post length</dt>
+            <dd className="font-semibold">{words} words {low ? "(low reliability)" : ""}</dd>
           </div>
           <div className="flex justify-between gap-3">
             <dt className="text-muted">Analysis ID</dt>
