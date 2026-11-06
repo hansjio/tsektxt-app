@@ -1,0 +1,12 @@
+<svg width="1557" height="1557" viewBox="0 0 1557 1557" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="repeat-mark">
+    <path d="M960.498 130.036L712.93 377.604L686.123 277.557L607.883 298.521L659.062 489.524L737.302 468.56L1017.77 187.312L960.498 130.036Z" fill="black"/>
+  </g>
+  <use href="#repeat-mark" transform="translate(778.066 -322.286) rotate(45)"/>
+  <use href="#repeat-mark" transform="translate(1556.13 4.43493e-05) rotate(90)"/>
+  <use href="#repeat-mark" transform="translate(1878.42 778.066) rotate(135)"/>
+  <use href="#repeat-mark" transform="translate(1556.13 1556.13) rotate(-180)"/>
+  <use href="#repeat-mark" transform="translate(778.066 1878.42) rotate(-135)"/>
+  <use href="#repeat-mark" transform="translate(-1.96173e-05 1556.13) rotate(-90)"/>
+  <use href="#repeat-mark" transform="translate(-322.286 778.066) rotate(-45)"/>
+</svg>
