@@ -1,14 +1,16 @@
 """Local demo server for the three TsekTxt models. No mock mode, no LLM verdicts.
 
-Run from E:\\repos\\tsektxt-app\\backend:   python -m uvicorn server:app --port 8000
+Run from tsektxt-app\\backend:   python -m uvicorn server:app --port 8000   (or double-click start.bat in the app folder)
 
-It reuses explain() from tsektxt-model-training/src/interpret.py (Integrated Gradients via Captum only),
-so predictions and highlights are exactly what the thesis scripts produce. Models come from
-hansjio/tsektxt-* on Hugging Face (or models/<name>/ in the training repo, if present).
+Self-contained: explain() comes from vendor/src/interpret.py, a verbatim copy of tsektxt-model-training/src/interpret.py
+(Integrated Gradients via Captum only), so predictions and highlights are exactly what the thesis scripts produce.
+vendor/ mirrors the training repo layout (src/, configs/config.yaml, results/calibration.json); refresh or check it with
+scripts/sync_vendor.py. Set TSEKTXT_TRAINING_DIR to use a training repo folder instead of the vendored copy.
+Models come from hansjio/tsektxt-* on Hugging Face (or models/<name>/ in the training repo, if present).
 Labels are read from model.config.id2label (1 = credible, 0 = not credible).
-Probabilities are temperature-scaled with tsektxt-model-training/results/calibration.json (src/calibrate.py, fitted on
-the internal validation split) when that file exists; the raw softmax values are returned too. Temperature scaling never
-changes the label. Without the file the raw softmax values are shown and the response says so ("calibrated": false).
+Probabilities are temperature-scaled with results/calibration.json (src/calibrate.py, fitted on the internal validation
+split) when that file exists; the raw softmax values are returned too. Temperature scaling never changes the label.
+Without the file the raw softmax values are shown and the response says so ("calibrated": false).
 """
 import os
 import re
@@ -18,13 +20,17 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-TRAINING = Path(os.environ.get("TSEKTXT_TRAINING_DIR", HERE.parents[1] / "tsektxt-model-training")).resolve()
+_override = os.environ.get("TSEKTXT_TRAINING_DIR")
+TRAINING = Path(_override).resolve() if _override else HERE / "vendor"
 if not (TRAINING / "src" / "interpret.py").exists():
-    raise SystemExit(f"Cannot find {TRAINING / 'src' / 'interpret.py'}. Set TSEKTXT_TRAINING_DIR to the training repo folder.")
+    raise SystemExit(f"Cannot find {TRAINING / 'src' / 'interpret.py'}. "
+                     + ("TSEKTXT_TRAINING_DIR must point to the training repo folder." if _override
+                        else "The app download is incomplete: backend\\vendor is missing. Download the app again."))
 sys.path.insert(0, str(TRAINING / "src"))
+print(f"Using IG/calibration code from {TRAINING}", file=sys.stderr)
 
-import interpret  # noqa: E402  (tsektxt-model-training/src/interpret.py)
-from calibrate import calibrate_p_credible, load_temperature  # noqa: E402  (tsektxt-model-training/src/calibrate.py)
+import interpret  # noqa: E402  (vendor/src/interpret.py = tsektxt-model-training/src/interpret.py)
+from calibrate import calibrate_p_credible, load_temperature  # noqa: E402  (vendor/src/calibrate.py)
 from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
@@ -38,12 +44,14 @@ LOCK = threading.Lock()  # one analysis at a time keeps CPU/RAM predictable
 async def lifespan(_: FastAPI):
     for name in interpret.NAMES:
         MODELS[name] = interpret.load(name)
+    if not load_temperature(interpret.NAMES[0])[1]:
+        print("Note: no results/calibration.json yet, so the page shows raw (uncalibrated) percentages.", file=sys.stderr)
     print("All models loaded. Demo ready.", file=sys.stderr)
     yield
 
 
 app = FastAPI(title="TsekTxt local demo", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+app.add_middleware(CORSMiddleware, allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
                    allow_methods=["*"], allow_headers=["*"])
 
 
@@ -65,7 +73,9 @@ def aligned_words(text: str, words: list[dict]) -> list[dict]:
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "models_loaded": list(MODELS), "max_length": interpret.MAXLEN, "device": interpret.DEV}
+    return {"ok": True, "models_loaded": list(MODELS), "max_length": interpret.MAXLEN, "device": interpret.DEV,
+            "code_from": "TSEKTXT_TRAINING_DIR" if _override else "vendor",
+            "calibrated": load_temperature(interpret.NAMES[0])[1]}
 
 
 @app.post("/api/analyze")

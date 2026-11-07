@@ -2,9 +2,14 @@
 
 Research demo: three models, Integrated Gradients, labels follow the source. Never say a model "detects misinformation" and never rank RoBERTa-Tagalog above XLM-R (McNemar p = 0.55).
 
+## New machine (presentation PC or a groupmate's laptop), at least a day before
+1. On GitHub: **Code > Download ZIP**. Right-click the ZIP > **Extract All...** into a short folder, e.g. `C:\tsektxt-app`. No second repo is needed (the IG code is in `backend\vendor`).
+2. Double-click **`start.bat`** (if Windows shows "Windows protected your PC": **More info > Run anyway**). The first run needs internet and takes 15 to 25 minutes: it installs Python 3.12 and Node.js if they are missing (it asks first), the packages (about 1 GB), and downloads the 3 models (about 1.5 to 2.5 GB, a few minutes).
+3. When the browser opens the checker, run one Example. From then on `start.bat` takes about 1 minute and works offline.
+
 ## Night before
 1. Plug in the charger. Set Windows power mode to "Best performance" and turn off sleep while plugged in.
-2. With internet: `powershell -ExecutionPolicy Bypass -File E:\repos\tsektxt-app\scripts\warmup.ps1`. Wait for **READY**. This caches the 3 models (about 1.5 to 2.5 GB) so the day itself needs no download.
+2. With internet: `powershell -ExecutionPolicy Bypass -File <app folder>\scripts\warmup.ps1` (same as `start.bat` plus one warm-up analysis; `start.bat` alone also works). Wait for **READY**. This caches the 3 models (about 1.5 to 2.5 GB) so the day itself needs no download.
 3. In the checker, click each **Example** button and run one check so you know how long it takes. Click **Source link** once to confirm it opens.
 4. Record a 2 to 3 minute screen recording of one full run (example loaded, check, verdicts, IG highlights). This is the fallback.
 5. Open the Colab presentation notebook once (`tsektxt-model-training/notebooks/colab_present.ipynb`), run it top to bottom, leave the tab open.
@@ -36,7 +41,7 @@ On CPU one post takes about 20 seconds for short text and up to about a minute f
 | Panel asks for their own post | Paste it in the checker. If the app is down, use the text box cell in the Colab notebook. |
 
 ## Offline notes
-- Cached models live in `C:\Users\Jio\.cache\huggingface\hub` (three `models--hansjio--tsektxt-*` folders). If you set `HF_HUB_OFFLINE=1` in the backend window before starting, it never tries the network.
+- Cached models live in `%USERPROFILE%\.cache\huggingface\hub` (three `models--hansjio--tsektxt-*` folders). If you set `HF_HUB_OFFLINE=1` in the backend window before starting, it never tries the network.
 - The app, the backend and the page all run on `localhost`. Nothing is sent to the internet when you check a post.
 - Example links open the original posts online; without internet just do not click them.
 
