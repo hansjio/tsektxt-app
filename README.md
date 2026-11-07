@@ -13,6 +13,8 @@ Paste one Taglish election post and see three verdicts side by side (RoBERTa-Tag
   - History, saved checks and feedback are stored only in your browser (delete in Settings).
   - Removed because they were fake or not part of the thesis: mock results and mock history, Groq/LLaMA explanations, image OCR, .docx "parsing", sign-in (Supabase), the single combined "suspicion score", and the "XLM-R is the primary model" claim.
 
+- `demo-assets/`: 19 screenshots and a 32 s GIF of the running demo, for READMEs and slides, with captions and regeneration steps (`demo-assets/README.md`). Not for the paper.
+
 **Self-contained.** `backend\vendor\` holds exact copies of `interpret.py` and `calibrate.py` (Integrated Gradients only) and `configs\config.yaml` from `tsektxt-model-training`, so the app needs no second repo. It also holds `results\calibration.json` (three fitted temperatures, no weights), so the page shows temperature-scaled percentages with the raw ones next to them. Fallback: if that file is missing, the page shows raw softmax percentages and says "(raw, not calibrated)". Optional: set `TSEKTXT_TRAINING_DIR` to a training repo folder to use its code and results instead.
 
 ## New machine: 3 steps (Windows)
