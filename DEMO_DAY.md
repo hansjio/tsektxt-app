@@ -10,10 +10,11 @@ Research demo: three models, Integrated Gradients, labels follow the source. Nev
 ## Night before
 1. Plug in the charger. Set Windows power mode to "Best performance" and turn off sleep while plugged in.
 2. With internet: `powershell -ExecutionPolicy Bypass -File <app folder>\scripts\warmup.ps1` (same as `start.bat` plus one warm-up analysis; `start.bat` alone also works). Wait for **READY**. This caches the 3 models (about 1.5 to 2.5 GB) so the day itself needs no download.
-3. In the checker, click each **Example** button and run one check so you know how long it takes. Click **Source link** once to confirm it opens.
-4. Record a 2 to 3 minute screen recording of one full run (example loaded, check, verdicts, IG highlights). This is the fallback.
-5. Open the Colab presentation notebook once (`tsektxt-model-training/notebooks/colab_present.ipynb`), run it top to bottom, leave the tab open.
-6. Copy the recording to the desktop and to a USB stick. Close other heavy programs. Restart the laptop.
+3. Check the percentages: each verdict should show a temperature-scaled percentage with the raw one next to it. If it says "(raw, not calibrated)", `backendendoresults\calibration.json` is missing (run `py -3.12 scripts\sync_vendor.py`). Calibration never changes a verdict.
+4. In the checker, click each **Example** button and run one check so you know how long it takes. Click **Source link** once to confirm it opens.
+5. Record a 2 to 3 minute screen recording of one full run (example loaded, check, verdicts, IG highlights). This is the fallback.
+6. Open the Colab presentation notebook once (`tsektxt-model-training/notebooks/colab_present.ipynb`), run it top to bottom, leave the tab open.
+7. Copy the recording to the desktop and to a USB stick. Close other heavy programs. Restart the laptop.
 
 ## Morning (30 minutes before)
 1. Charger in. Close Chrome tabs you do not need, quit chat and sync apps.

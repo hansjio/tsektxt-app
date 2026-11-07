@@ -13,7 +13,7 @@ Paste one Taglish election post and see three verdicts side by side (RoBERTa-Tag
   - History, saved checks and feedback are stored only in your browser (delete in Settings).
   - Removed because they were fake or not part of the thesis: mock results and mock history, Groq/LLaMA explanations, image OCR, .docx "parsing", sign-in (Supabase), the single combined "suspicion score", and the "XLM-R is the primary model" claim.
 
-**Self-contained.** `backend\vendor\` holds exact copies of `interpret.py` and `calibrate.py` (Integrated Gradients only) and `configs\config.yaml` from `tsektxt-model-training`, so the app needs no second repo. It also holds `results\calibration.json` (temperatures) once that file exists in the training repo. Until then the page shows raw percentages and says "(raw, not calibrated)". Optional: set `TSEKTXT_TRAINING_DIR` to a training repo folder to use its code and results instead.
+**Self-contained.** `backend\vendor\` holds exact copies of `interpret.py` and `calibrate.py` (Integrated Gradients only) and `configs\config.yaml` from `tsektxt-model-training`, so the app needs no second repo. It also holds `results\calibration.json` (three fitted temperatures, no weights), so the page shows temperature-scaled percentages with the raw ones next to them. Fallback: if that file is missing, the page shows raw softmax percentages and says "(raw, not calibrated)". Optional: set `TSEKTXT_TRAINING_DIR` to a training repo folder to use its code and results instead.
 
 ## New machine: 3 steps (Windows)
 
@@ -29,7 +29,7 @@ Demo day: `scripts\warmup.ps1` does the same as `start.bat` plus one warm-up ana
 
 **Before anyone downloads**
 - [ ] The latest app code is **pushed** to GitHub (`git push` in `tsektxt-app`). The ZIP only contains what is pushed. Check that the ZIP has `start.bat` and `backend\vendor\` in it.
-- [ ] Optional: the calibration step is done (see "Calibrated percentages" below). Without it the demo still works and shows raw percentages.
+- [x] The calibration step is done: `backendendoresults\calibration.json` is committed (see "Calibrated percentages" below). Fallback: without it the demo still works and shows raw percentages.
 
 **On each laptop (about 20 to 30 minutes the first time, with internet)**
 - [ ] 8 GB RAM or more, about 5 GB free disk, charger plugged in.
@@ -54,7 +54,7 @@ Demo day: `scripts\warmup.ps1` does the same as `start.bat` plus one warm-up ana
 **Known messages you can ignore**
 - "Windows protected your PC" on the first double-click: **More info > Run anyway**.
 - A warning about an "incorrect regex pattern" when the XLM-R tokenizer loads. It comes from the transformers library and the app still works.
-- "(raw, not calibrated)" next to the percentages: the calibration file is not in the app yet (see below).
+- "(raw, not calibrated)" next to the percentages: fallback only, meaning `backendendoresults\calibration.json` is missing (restore it with `py -3.12 scripts\sync_vendor.py`; see below).
 
 ## How we can demo the models
 
@@ -66,7 +66,9 @@ Demo day: `scripts\warmup.ps1` does the same as `start.bat` plus one warm-up ana
 
 A Hugging Face Space (the demo at a public URL, free CPU) was considered and is **not needed**. Colab already covers the "nothing installed" case. A Space would also make the demo public (that needs the group's OK) and would be slower on a free CPU.
 
-## Calibrated percentages (optional, once)
+## Calibrated percentages (done; steps kept for refitting)
+
+The file is already committed, so no action is needed. Only repeat these steps if the temperatures are refitted.
 
 1. Run `tsektxt-model-training/notebooks/colab_extra.ipynb` in Colab. It writes `results/calibration.json` (one temperature per model, fitted on the internal validation split; the predicted labels do not change).
 2. Put that file in `tsektxt-model-training/results/`, then in this app folder run `py -3.12 scripts\sync_vendor.py`. It copies the file to `backend\vendor\results\`.
