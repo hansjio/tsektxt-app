@@ -58,7 +58,7 @@ export function ResultSummaryCard({ result, variant = "default" }: { result: Ana
             <p className="font-semibold text-ink">Low reliability: this post has {words} words</p>
             <p className="mt-1 text-muted">
               The models were trained on news articles that were mostly {SHORT_POST_WORDS}+ words long. On short posts they often lean
-              &quot;not credible&quot; even when a post is accurate, and a high percentage does not mean they are sure. Treat the verdicts below
+              &quot;not credible&quot; even when a post is accurate. The percentages are calibrated on news articles, so on a post this short they can still be too high. Treat the verdicts below
               as weak signals. To check the claim, look it up on a fact-checking site; if this post links to a longer article, checking that
               full text gives the models more to work with.
             </p>

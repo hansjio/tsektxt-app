@@ -6,6 +6,9 @@ It reuses explain() from tsektxt-model-training/src/interpret.py (Integrated Gra
 so predictions and highlights are exactly what the thesis scripts produce. Models come from
 hansjio/tsektxt-* on Hugging Face (or models/<name>/ in the training repo, if present).
 Labels are read from model.config.id2label (1 = credible, 0 = not credible).
+Probabilities are temperature-scaled with tsektxt-model-training/results/calibration.json (src/calibrate.py, fitted on
+the internal validation split) when that file exists; the raw softmax values are returned too. Temperature scaling never
+changes the label. Without the file the raw softmax values are shown and the response says so ("calibrated": false).
 """
 import os
 import re
@@ -21,6 +24,7 @@ if not (TRAINING / "src" / "interpret.py").exists():
 sys.path.insert(0, str(TRAINING / "src"))
 
 import interpret  # noqa: E402  (tsektxt-model-training/src/interpret.py)
+from calibrate import calibrate_p_credible, load_temperature  # noqa: E402  (tsektxt-model-training/src/calibrate.py)
 from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from pydantic import BaseModel, Field  # noqa: E402
@@ -72,14 +76,20 @@ def analyze(req: Req):
     results = []
     with LOCK:
         for name, (tok, model, path) in MODELS.items():
-            r = interpret.explain(tok, model, text, n_steps=req.n_steps)
+            r = interpret.explain(tok, model, text, n_steps=req.n_steps)  # IG attributions are not affected by T
+            T, calibrated = load_temperature(name)
+            p_cr = calibrate_p_credible(r["prob_credible"], T) if calibrated else r["prob_credible"]
             results.append({
                 "key": name,
                 "name": DISPLAY.get(name, name),
                 "source": path,
                 "label": r["pred_name"],  # credible | not_credible (from id2label)
-                "prob_credible": r["prob_credible"],
-                "prob_not_credible": r["prob_not_credible"],
+                "prob_credible": p_cr,
+                "prob_not_credible": 1 - p_cr,
+                "prob_credible_raw": r["prob_credible"],
+                "prob_not_credible_raw": r["prob_not_credible"],
+                "calibrated": calibrated,
+                "temperature": T,
                 "truncated": r["truncated"],
                 "words": aligned_words(text, r["words"]),
                 "completeness_rel_error": r["completeness"]["rel_error"],

@@ -16,6 +16,10 @@ export interface ModelResult {
   label: "credible" | "not_credible";
   prob_credible: number;
   prob_not_credible: number;
+  prob_credible_raw?: number; // raw softmax, before temperature scaling
+  prob_not_credible_raw?: number;
+  calibrated?: boolean; // true when results/calibration.json was found (temperature scaling applied)
+  temperature?: number;
   truncated: boolean;
   words: WordScore[];
   completeness_rel_error: number;

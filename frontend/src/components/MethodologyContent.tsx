@@ -25,9 +25,18 @@ const sections = [
   },
 ];
 
+// Implementation details live here, not in the thesis (the paper describes the demo only at a high level).
+const howItWorks = [
+  "The three fine-tuned models are downloaded once from Hugging Face (hansjio/tsektxt-roberta-tagalog, -mbert, -xlmr), cached on this computer, and run locally. No text leaves the computer.",
+  "A FastAPI back end runs the models and reuses the thesis's own Integrated Gradients code; this Next.js page shows the results.",
+  "Integrated Gradients scores are computed per subword token and summed into whole words, so the three models can be compared word by word. Steps start at 100 and double up to 800 until the completeness error is at most 5%.",
+  "Percentages: one temperature per model, fitted on the internal validation split of the news corpus (results/calibration.json in the training repo), divides the model scores before the softmax. It never changes a verdict. Without that file the page shows raw percentages and says so.",
+  "Posts under 100 words get a low-reliability note, because about 90% of the training articles had 100 words or more. The note is display-only and never changes a verdict.",
+];
+
 const steps = [
   ["Input text", "You paste a post. Each model reads its first 128 tokens."],
-  ["Three classifications", "Each model returns credible / not credible with probabilities. Not credible is the positive class."],
+  ["Three classifications", "Each model returns credible / not credible with a percentage. Not credible is the positive class. Percentages are temperature-scaled (raw value shown next to them)."],
   ["Word attributions", "Integrated Gradients highlights the words each model leaned on; a completeness check flags rough results."],
 ];
 
@@ -58,12 +67,23 @@ export function MethodologyContent({ compact = false }: { compact?: boolean }) {
           ))}
         </div>
       </section>
+      {!compact && (
+        <section className="mt-6 rounded-[1.75rem] border border-border bg-white/55 p-6">
+          <h2 className="text-xl font-semibold">How the demo works</h2>
+          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
+            {howItWorks.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </section>
+      )}
       <section className="mt-6 rounded-[1.75rem] border border-caution/30 bg-caution/5 p-6">
         <h2 className="text-xl font-semibold">Limits</h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted">
           <li>Single training seed per model; verdicts and highlights can change with another seed.</li>
           <li>Trained on long news articles (about 90% had 100 words or more). Short social posts are outside that range, so verdicts on them are less reliable and confidence can be high and still wrong.</li>
           <li>Labels come from the sources, so the models learn source style as well as content.</li>
+          <li>Percentages are temperature-scaled: one number per model, fitted on the internal validation split, softens the raw scores so they match how often the model was right on held-out news articles. It never changes a verdict. It was fitted on long articles, so on short posts the percentages can still be too high.</li>
           <li>No external AI service is used; there is no generated explanation text.</li>
         </ul>
       </section>

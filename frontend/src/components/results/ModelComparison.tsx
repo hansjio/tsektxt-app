@@ -16,6 +16,7 @@ export function ModelComparison({ models, igSteps, maxLength }: { models: ModelR
               <span className="font-semibold">{m.name}</span>
               <span className="font-semibold text-muted">
                 P(credible) {(m.prob_credible * 100).toFixed(1)}% · P(not credible) {(m.prob_not_credible * 100).toFixed(1)}%
+                {m.calibrated && m.prob_credible_raw !== undefined ? ` (calibrated; raw ${(m.prob_credible_raw * 100).toFixed(1)}%)` : " (raw, not calibrated)"}
               </span>
             </div>
             <div className="flex h-1.5 overflow-hidden rounded-full bg-border" aria-hidden="true">
