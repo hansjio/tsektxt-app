@@ -29,7 +29,7 @@ Demo day: `scripts\warmup.ps1` does the same as `start.bat` plus one warm-up ana
 
 **Before anyone downloads**
 - [ ] The latest app code is **pushed** to GitHub (`git push` in `tsektxt-app`). The ZIP only contains what is pushed. Check that the ZIP has `start.bat` and `backend\vendor\` in it.
-- [x] The calibration step is done: `backendendoresults\calibration.json` is committed (see "Calibrated percentages" below). Fallback: without it the demo still works and shows raw percentages.
+- [x] The calibration step is done: `backend\vendor\results\calibration.json` is committed (see "Calibrated percentages" below). Fallback: without it the demo still works and shows raw percentages.
 
 **On each laptop (about 20 to 30 minutes the first time, with internet)**
 - [ ] 8 GB RAM or more, about 5 GB free disk, charger plugged in.
@@ -54,7 +54,7 @@ Demo day: `scripts\warmup.ps1` does the same as `start.bat` plus one warm-up ana
 **Known messages you can ignore**
 - "Windows protected your PC" on the first double-click: **More info > Run anyway**.
 - A warning about an "incorrect regex pattern" when the XLM-R tokenizer loads. It comes from the transformers library and the app still works.
-- "(raw, not calibrated)" next to the percentages: fallback only, meaning `backendendoresults\calibration.json` is missing (restore it with `py -3.12 scripts\sync_vendor.py`; see below).
+- "(raw, not calibrated)" next to the percentages: fallback only, meaning `backend\vendor\results\calibration.json` is missing (restore it with `py -3.12 scripts\sync_vendor.py`; see below).
 
 ## How we can demo the models
 
