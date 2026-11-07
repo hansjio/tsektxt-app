@@ -24,6 +24,7 @@ On CPU one post takes about 20 seconds for short text and up to about a minute f
 - "Each model was fine-tuned once (one fixed configuration, one seed), and the three are not ranked: RoBERTa-Tagalog vs XLM-R was not significantly different."
 - "The models were trained on long news articles, so short posts are outside what they know. Confidence can be high and still wrong."
 - For the Example posts: "This is a real public post with its link. We do not claim a label for it; Taglish labels are still being finished."
+- Expect all three models to say "not credible" on most Example posts (checked: all five, 92 to 99.9 percent not credible), even though they come from news outlets and COMELEC. Say it before the panel does: "The models were trained on long articles; short posts are outside what they know, so this is the domain-shift limit, not a claim that these posts are false."
 
 ## Fallback plan
 | Problem | Do this |
