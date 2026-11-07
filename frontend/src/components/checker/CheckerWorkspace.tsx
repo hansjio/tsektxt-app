@@ -26,6 +26,35 @@ function ResearchDemoBanner() {
   );
 }
 
+function ExamplePicker({ shown, onPick }: { shown: number | null; onPick: (index: number) => void }) {
+  const current = shown === null ? null : brand.examples[shown];
+  return (
+    <div className="rounded-xl border border-border bg-white px-4 py-3 text-sm">
+      <p className="font-semibold text-ink">Real example posts</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {brand.examples.map((ex, i) => (
+          <Button key={ex.url} variant={shown === i ? "primary" : "secondary"} className="min-h-9 px-3 py-1.5" onClick={() => onPick(i)}>
+            {ex.name}
+          </Button>
+        ))}
+      </div>
+      <p className="mt-2 text-muted">
+        {current ? (
+          <>
+            Real public post by {current.source}, 2022.{" "}
+            <a className="underline" href={current.url} target="_blank" rel="noreferrer">
+              Source link
+            </a>
+            . No label is claimed here.
+          </>
+        ) : (
+          "Real public posts from news outlets and an official account, each with its source link. The Sample button loads invented test text."
+        )}
+      </p>
+    </div>
+  );
+}
+
 export function CheckerWorkspace({ initialText = "" }: { initialText?: string }) {
   const [text, setText] = useState(initialText);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -34,6 +63,7 @@ export function CheckerWorkspace({ initialText = "" }: { initialText?: string })
   const [resultsOpen, setResultsOpen] = useState(true);
   const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
   const [sampleIndex, setSampleIndex] = useState(0);
+  const [exampleShown, setExampleShown] = useState<number | null>(null);
   const [toasts, setToasts] = useState<AnimatedToast[]>([]);
 
   useEffect(() => {
@@ -78,13 +108,23 @@ export function CheckerWorkspace({ initialText = "" }: { initialText?: string })
     setText(brand.samples[sampleIndex % brand.samples.length]);
     setResult(null);
     setError("");
-    setToasts([{ id: "sample-loaded", title: "Sample loaded", description: "An invented example for testing, not a real post.", status: "success", duration: 3500 }]);
+    setToasts([{ id: "sample-loaded", title: "Sample loaded", description: "Invented test text, not a real post.", status: "success", duration: 3500 }]);
     setResultsOpen(true);
     setSampleIndex((i) => i + 1);
+    setExampleShown(null);
+  }
+
+  function loadExample(index: number) {
+    setText(brand.examples[index].text);
+    setResult(null);
+    setError("");
+    setResultsOpen(true);
+    setExampleShown(index);
   }
 
   function updateText(nextText: string) {
     setText(nextText);
+    setExampleShown(null);
     setResult(null);
     setError("");
   }
@@ -135,6 +175,7 @@ export function CheckerWorkspace({ initialText = "" }: { initialText?: string })
       </div>
       <div className="mx-auto w-full max-w-3xl space-y-4 pt-10 xl:pt-0">
         <ResearchDemoBanner />
+        <ExamplePicker shown={exampleShown} onPick={loadExample} />
         <TextAnalysisEditor value={text} onChange={updateText} onAnalyze={() => void runAnalysis()} onLoadSample={loadSample} loading={loading} result={result} />
       </div>
       {resultsOpen ? (

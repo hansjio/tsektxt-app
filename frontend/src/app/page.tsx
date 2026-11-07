@@ -35,7 +35,7 @@ export default function LandingPage() {
               <p className="mt-3 rounded-[1rem] border border-border bg-white p-4 text-sm leading-7 text-muted shadow-inner">{brand.samples[0]}</p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted">
                 <span className="rounded-full bg-canvas px-3 py-1">Text input</span>
-                                <span className="rounded-full bg-canvas px-3 py-1">Dummy example</span>
+                                <span className="rounded-full bg-canvas px-3 py-1">Invented test text</span>
               </div>
             </Card>
             <div className="w-full lg:absolute lg:left-0 lg:top-44 lg:w-[90%] lg:rotate-[-1.5deg]">
