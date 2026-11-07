@@ -25,6 +25,53 @@ Paste one Taglish election post and see three verdicts side by side (RoBERTa-Tag
 
 Demo day: `scripts\warmup.ps1` does the same as `start.bat` plus one warm-up analysis (see `DEMO_DAY.md`).
 
+## Setting it up on a new laptop (checklist)
+
+**Before anyone downloads**
+- [ ] The latest app code is **pushed** to GitHub (`git push` in `tsektxt-app`). The ZIP only contains what is pushed. Check that the ZIP has `start.bat` and `backend\vendor\` in it.
+- [ ] Optional: the calibration step is done (see "Calibrated percentages" below). Without it the demo still works and shows raw percentages.
+
+**On each laptop (about 20 to 30 minutes the first time, with internet)**
+- [ ] 8 GB RAM or more, about 5 GB free disk, charger plugged in.
+- [ ] Download the ZIP, then **Extract All** to `C:\tsektxt-app`. Do not run it from inside the ZIP, and avoid a long folder path.
+- [ ] Double-click `start.bat`. If it asks "Install Python 3.12 now with winget?" or "Install Node.js LTS now?", press Enter (yes). Windows may ask for permission for Node.js.
+- [ ] If it says `STOP: ...`, do what the message says (usually install Python 3.12 or Node.js from the link it shows), then double-click `start.bat` again. It continues where it stopped.
+- [ ] Wait for **READY**. The browser opens the checker. Click an **Example** and run one check (10 seconds to a minute).
+- [ ] Close everything and double-click `start.bat` again. It should take about 1 minute now. From here on it also works **offline** (models are cached).
+
+**What `start.bat` does, step by step** (the window shows `== 1/5` to `== 5/5`)
+1. Python: uses `.venv` if it exists. Otherwise it finds Python 3.12 (or 3.11/3.13), or offers to install it, then creates `.venv` and installs `backend\requirements.txt`. It only reinstalls when that file changes.
+2. Node.js 20 or newer (offers to install the LTS version), then `npm install` in `frontend\` (only when `package-lock.json` changes). It creates `frontend\.env.local` if it is missing.
+3. Models: downloads `hansjio/tsektxt-roberta-tagalog`, `-mbert` and `-xlmr` into `%USERPROFILE%\.cache\huggingface\hub` if they are not there yet.
+4. Opens two windows: "TsekTxt backend" (port 8000) and "TsekTxt web page" (port 3000). If one is already running, it reuses it.
+5. Waits for `/api/health` to report 3 models loaded, then opens http://localhost:3000/checker.
+
+**What was tested (2026-11-07, Jio's laptop)**
+- The backend ran from a fresh copy of the app with no training repo next to it: `/api/health` reported 3 models from the vendor copy, and one analysis took about 10 seconds on CPU.
+- `start.bat` on an existing setup went through steps 1 to 5 to READY, and the checker page loaded.
+- **Not tested yet:** a first run on a laptop with no Python and no Node.js. That is the main thing to confirm tomorrow.
+
+**Known messages you can ignore**
+- "Windows protected your PC" on the first double-click: **More info > Run anyway**.
+- A warning about an "incorrect regex pattern" when the XLM-R tokenizer loads. It comes from the transformers library and the app still works.
+- "(raw, not calibrated)" next to the percentages: the calibration file is not in the app yet (see below).
+
+## How we can demo the models
+
+| Option | Needs | Use it for |
+|---|---|---|
+| This app (`start.bat`) | A Windows laptop set up as above; works offline after the first run | The main live demo: paste a post and see the 3 verdicts with IG highlights |
+| Colab notebook `tsektxt-model-training/notebooks/colab_present.ipynb` | A browser, a Google account, internet (T4 GPU) | Backup: results, figures and a live prediction when the app cannot run |
+| Screen recording of one full run | Nothing | Last resort when there is no internet and the laptop fails |
+
+A Hugging Face Space (the demo at a public URL, free CPU) was considered and is **not needed**. Colab already covers the "nothing installed" case. A Space would also make the demo public (that needs the group's OK) and would be slower on a free CPU.
+
+## Calibrated percentages (optional, once)
+
+1. Run `tsektxt-model-training/notebooks/colab_extra.ipynb` in Colab. It writes `results/calibration.json` (one temperature per model, fitted on the internal validation split; the predicted labels do not change).
+2. Put that file in `tsektxt-model-training/results/`, then in this app folder run `py -3.12 scripts\sync_vendor.py`. It copies the file to `backend\vendor\results\`.
+3. Commit and push the app. From then on every laptop shows calibrated percentages (the raw ones stay visible next to them).
+
 ## Requirements
 
 - Windows 10 or 11, 8 GB RAM or more, about 5 GB free disk.
